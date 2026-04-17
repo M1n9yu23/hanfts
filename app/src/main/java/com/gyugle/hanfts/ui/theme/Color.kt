@@ -1,4 +1,4 @@
-package com.gyugle.hanfts.ui.theme
+package com.gyugle.hanfts.sample.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

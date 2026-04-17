@@ -1,4 +1,4 @@
-package com.gyugle.hanfts
+package com.gyugle.hanfts.sample
 
 import org.junit.Test
 

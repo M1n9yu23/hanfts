@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.gyugle.hanfts"
+    namespace = "com.gyugle.hanfts.sample"
     compileSdk {
         version = release(36) {
             minorApiLevel = 1
@@ -14,7 +14,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.gyugle.hanfts"
+        applicationId = "com.gyugle.hanfts.sample"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -48,6 +48,10 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":hanfts"))
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.material.icons.core)
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
