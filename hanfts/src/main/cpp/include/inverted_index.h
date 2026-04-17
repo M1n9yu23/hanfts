@@ -17,11 +17,9 @@ struct SearchResult {
 /**
  * In-memory inverted index with TF-IDF ranking and prefix search.
  *
- * Documents are identified by an integer @c doc_id chosen by the caller.
+ * Documents are identified by an integer doc_id chosen by the caller.
  * Each document has a title (weighted 3×) and a body. Both are tokenized
  * by Tokenizer before indexing.
- *
- * The index can be persisted to a binary file and reloaded with save()/load().
  *
  * This class is NOT thread-safe. Concurrent access must be synchronized
  * externally (see SearchEngine, which wraps this class with a shared_mutex).
@@ -32,7 +30,7 @@ public:
      * Indexes a document, replacing any existing document with the same @p doc_id.
      * Title tokens are weighted 3× relative to body tokens.
      */
-    void addDocument(int doc_id, const std::string &title, const std::string &body);
+    void addDocument(int doc_id, const std::string& title, const std::string& body);
 
     /** Removes the document with the given @p doc_id. No-op if not found. */
     void removeDocument(int doc_id);
@@ -46,20 +44,7 @@ public:
      *
      * @param limit  Maximum number of results; 0 or negative means unlimited.
      */
-    std::vector<SearchResult> search(const std::string &query, int limit = 20) const;
-
-    /**
-     * Serializes the index to a binary file at @p path.
-     * @return true on success, false if the file cannot be written.
-     */
-    bool save(const std::string &path) const;
-
-    /**
-     * Deserializes the index from a binary file at @p path.
-     * Clears the current index before loading.
-     * @return true on success, false if the file is missing or corrupt.
-     */
-    bool load(const std::string &path);
+    std::vector<SearchResult> search(const std::string& query, int limit = 20) const;
 
     /** Removes all documents and terms from the index. */
     void clear();
@@ -82,8 +67,8 @@ private:
     // Sorted map so that lower_bound() can efficiently find prefix matches.
     std::map<std::string, std::vector<Posting>> index_;
 
-    std::unordered_map<int, DocInfo>              docs_;
-    std::unordered_map<std::string, int>          doc_freq_;   ///< Number of docs containing each term.
+    std::unordered_map<int, DocInfo>                 docs_;
+    std::unordered_map<std::string, int>             doc_freq_;   ///< Number of docs containing each term.
     std::unordered_map<int, std::vector<std::string>> doc_terms_; ///< Reverse map: doc → terms (for removal).
 
     /** Computes the TF-IDF score contribution of a single term occurrence. */
@@ -91,12 +76,9 @@ private:
 
     /** Accumulates weighted token frequencies into @p term_counts. */
     void indexTokens(int doc_id,
-                     const std::vector<std::string> &tokens,
+                     const std::vector<std::string>& tokens,
                      int weight,
-                     std::unordered_map<std::string, int> &term_counts);
-
-    /** Rebuilds doc_terms_ from the current index_ (used after load()). */
-    void buildDocTerms();
+                     std::unordered_map<std::string, int>& term_counts);
 };
 
 }

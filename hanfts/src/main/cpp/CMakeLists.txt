@@ -21,7 +21,4 @@ target_compile_options(hanfts PRIVATE
     -Wall
 )
 
-find_library(log-lib log)
-target_link_libraries(hanfts ${log-lib})
-
 target_link_options(hanfts PRIVATE "-Wl,-z,max-page-size=16384")

@@ -1,65 +1,68 @@
 package com.gyugle.hanfts
 
-import java.io.Closeable
+import java.util.concurrent.atomic.AtomicLong
 
-/**
- * [SearchEngine] backed by a native C++17 FTS engine.
- *
- * The index is persisted to [indexPath] after every write so it survives
- * process restarts. Thread-safety is handled natively via std::shared_mutex
- * (multiple concurrent readers, exclusive writers).
- *
- * Must be [close]d when no longer needed to free the native heap allocation.
- * Idiomatic usage:
- * ```kotlin
- * NativeSearchEngine(context.filesDir.path + "/search.idx").use { engine ->
- *     engine.indexDocument(1, "Title", "Body text")
- *     val results = engine.search("query")
- * }
- * ```
- *
- * @param indexPath Absolute path to the binary index file. The parent
- *   directory must already exist and be writable by the application.
- * @throws IllegalStateException if the native engine fails to initialise.
- */
-class NativeSearchEngine(indexPath: String) : SearchEngine, Closeable {
-    private var handle: Long = nativeCreate(indexPath)
+internal class NativeSearchEngine : SearchEngine {
+
+    private val handle = AtomicLong(nativeCreate())
 
     init {
-        check(handle != 0L) { "Failed to initialise native FTS engine at: $indexPath" }
+        check(handle.get() != 0L) { "Failed to initialise native FTS engine" }
     }
 
-    override fun indexDocument(id: Int, title: String, body: String) {
-        nativeIndexDocument(handle, id, title, body)
-    }
+    override val documentCount: Int
+        get() = withHandle { nativeDocumentCount(it) }
 
-    override fun removeDocument(id: Int) {
-        nativeRemoveDocument(handle, id)
-    }
+    override fun indexDocument(id: Int, title: String, body: String) =
+        withHandle { nativeIndexDocument(it, id, title, body) }
 
-    override fun search(query: String, limit: Int): List<Int> {
+    override fun removeDocument(id: Int) =
+        withHandle { nativeRemoveDocument(it, id) }
+
+    override fun clear() =
+        withHandle { nativeClear(it) }
+
+    override fun search(query: String, limit: Int): List<SearchResult> {
+        require(limit > 0) { "limit must be positive, was $limit" }
         if (query.isBlank()) return emptyList()
-        return nativeSearch(handle, query, limit).toList()
-    }
-
-    override fun rebuildIndex(documents: List<Triple<Int, String, String>>) {
-        val ids    = IntArray(documents.size) { documents[it].first }
-        val titles = Array(documents.size)   { documents[it].second }
-        val bodies = Array(documents.size)   { documents[it].third }
-        nativeRebuildIndex(handle, ids, titles, bodies)
-    }
-
-    override fun close() {
-        if (handle != 0L) {
-            nativeDestroy(handle)
-            handle = 0L
+        return withHandle { h ->
+            val packed = nativeSearch(h, query, limit)
+            List(packed.size / 2) { i ->
+                SearchResult(
+                    id    = packed[i * 2],
+                    score = Float.fromBits(packed[i * 2 + 1]),
+                )
+            }
         }
     }
 
-    private external fun nativeCreate(indexPath: String): Long
+    override fun rebuildIndex(documents: List<Document>) =
+        withHandle { h ->
+            nativeRebuildIndex(
+                h,
+                IntArray(documents.size) { documents[it].id },
+                Array(documents.size) { documents[it].title },
+                Array(documents.size) { documents[it].body },
+            )
+        }
+
+    override fun close() {
+        val h = handle.getAndSet(0L)
+        if (h != 0L) nativeDestroy(h)
+    }
+
+    private inline fun <T> withHandle(block: (Long) -> T): T {
+        val h = handle.get()
+        check(h != 0L) { "SearchEngine is closed" }
+        return block(h)
+    }
+
+    private external fun nativeCreate(): Long
     private external fun nativeDestroy(handle: Long)
+    private external fun nativeDocumentCount(handle: Long): Int
     private external fun nativeIndexDocument(handle: Long, id: Int, title: String, body: String)
     private external fun nativeRemoveDocument(handle: Long, id: Int)
+    private external fun nativeClear(handle: Long)
     private external fun nativeSearch(handle: Long, query: String, limit: Int): IntArray
     private external fun nativeRebuildIndex(
         handle: Long,
