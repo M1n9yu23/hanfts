@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Gyugle
+ * Copyright $YEAR Gyugle
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gyugle.hanfts
-
-/**
- * A document to be indexed by [SearchEngine].
- *
- * @param id    Unique integer identifier. Indexing a document with an existing [id] replaces it.
- * @param title Short descriptive text, weighted 3× higher than [body] in relevance scoring.
- * @param body  Main content of the document.
- */
-data class Document(
-  val id: Int,
-  val title: String,
-  val body: String,
-)

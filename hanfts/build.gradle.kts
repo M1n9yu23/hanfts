@@ -1,49 +1,64 @@
+/*
+ * Copyright 2026 Gyugle
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.android.library)
+  alias(libs.plugins.android.library)
 }
 
 android {
-    namespace  = "com.gyugle.hanfts"
-    compileSdk = 36
+  namespace = "com.gyugle.hanfts"
+  compileSdk = 36
 
-    defaultConfig {
-        minSdk = 21
-        consumerProguardFiles("proguard-rules.pro")
+  defaultConfig {
+    minSdk = 21
+    consumerProguardFiles("proguard-rules.pro")
 
-        ndk {
-            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
-        }
-        externalNativeBuild {
-            cmake {
-                cppFlags  += "-std=c++17"
-                arguments += "-DANDROID_STL=c++_shared"
-            }
-        }
+    ndk {
+      abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
     }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
     externalNativeBuild {
-        cmake {
-            path    = file("src/main/cpp/CMakeLists.txt")
-            version = "3.22.1"
-        }
+      cmake {
+        cppFlags += "-std=c++17"
+        arguments += "-DANDROID_STL=c++_shared"
+      }
     }
+  }
+
+  buildTypes {
+    release {
+      isMinifyEnabled = false
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+  }
+
+  externalNativeBuild {
+    cmake {
+      path = file("src/main/cpp/CMakeLists.txt")
+      version = "3.22.1"
+    }
+  }
 }
 
 kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
-    }
+  compilerOptions {
+    jvmTarget.set(JvmTarget.JVM_21)
+  }
 }
