@@ -22,6 +22,6 @@ package com.gyugle.hanfts
  * @param score TF-IDF relevance score. Higher values indicate a closer match.
  */
 data class SearchResult(
-  val id: Int,
+  val id: Long,
   val score: Float,
 )

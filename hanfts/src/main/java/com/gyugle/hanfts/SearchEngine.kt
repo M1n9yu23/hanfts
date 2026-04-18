@@ -47,7 +47,7 @@ interface SearchEngine : Closeable {
    *
    * @throws IllegalStateException if this engine has been closed.
    */
-  fun indexDocument(id: Int, title: String, body: String)
+  fun indexDocument(id: Long, title: String, body: String)
 
   /**
    * Adds or replaces [document] in the index.
@@ -65,7 +65,7 @@ interface SearchEngine : Closeable {
    *
    * @throws IllegalStateException if this engine has been closed.
    */
-  fun removeDocument(id: Int)
+  fun removeDocument(id: Long)
 
   /**
    * Removes all documents from the index.

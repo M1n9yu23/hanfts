@@ -27,10 +27,10 @@ internal class NativeSearchEngine : SearchEngine {
   override val documentCount: Int
     get() = withHandle { nativeDocumentCount(it) }
 
-  override fun indexDocument(id: Int, title: String, body: String) =
+  override fun indexDocument(id: Long, title: String, body: String) =
     withHandle { nativeIndexDocument(it, id, title, body) }
 
-  override fun removeDocument(id: Int) =
+  override fun removeDocument(id: Long) =
     withHandle { nativeRemoveDocument(it, id) }
 
   override fun clear() =
@@ -44,7 +44,7 @@ internal class NativeSearchEngine : SearchEngine {
       List(packed.size / 2) { i ->
         SearchResult(
           id = packed[i * 2],
-          score = Float.fromBits(packed[i * 2 + 1]),
+          score = Float.fromBits(packed[i * 2 + 1].toInt()),
         )
       }
     }
@@ -54,7 +54,7 @@ internal class NativeSearchEngine : SearchEngine {
     withHandle { h ->
       nativeRebuildIndex(
         h,
-        IntArray(documents.size) { documents[it].id },
+        LongArray(documents.size) { documents[it].id },
         Array(documents.size) { documents[it].title },
         Array(documents.size) { documents[it].body },
       )
@@ -77,17 +77,17 @@ internal class NativeSearchEngine : SearchEngine {
 
   private external fun nativeDocumentCount(handle: Long): Int
 
-  private external fun nativeIndexDocument(handle: Long, id: Int, title: String, body: String)
+  private external fun nativeIndexDocument(handle: Long, id: Long, title: String, body: String)
 
-  private external fun nativeRemoveDocument(handle: Long, id: Int)
+  private external fun nativeRemoveDocument(handle: Long, id: Long)
 
   private external fun nativeClear(handle: Long)
 
-  private external fun nativeSearch(handle: Long, query: String, limit: Int): IntArray
+  private external fun nativeSearch(handle: Long, query: String, limit: Int): LongArray
 
   private external fun nativeRebuildIndex(
     handle: Long,
-    ids: IntArray,
+    ids: LongArray,
     titles: Array<String>,
     bodies: Array<String>,
   )

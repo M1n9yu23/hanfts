@@ -35,7 +35,7 @@ float InvertedIndex::termScore(int term_freq, int total_terms, int df) const {
     return tf * idf;
 }
 
-void InvertedIndex::indexTokens(int doc_id,
+void InvertedIndex::indexTokens(int64_t doc_id,
                                  const std::vector<std::string>& tokens,
                                  int weight,
                                  std::unordered_map<std::string, int>& term_counts) {
@@ -44,7 +44,7 @@ void InvertedIndex::indexTokens(int doc_id,
     }
 }
 
-void InvertedIndex::addDocument(int doc_id,
+void InvertedIndex::addDocument(int64_t doc_id,
                                  const std::string& title,
                                  const std::string& body) {
     removeDocument(doc_id);
@@ -73,7 +73,7 @@ void InvertedIndex::addDocument(int doc_id,
     doc_terms_[doc_id] = std::move(terms);
 }
 
-void InvertedIndex::removeDocument(int doc_id) {
+void InvertedIndex::removeDocument(int64_t doc_id) {
     auto doc_it = docs_.find(doc_id);
     if (doc_it == docs_.end()) return;
     docs_.erase(doc_it);
@@ -108,7 +108,7 @@ std::vector<SearchResult> InvertedIndex::search(const std::string& query, int li
     auto query_tokens = Tokenizer::tokenize(query);
     if (query_tokens.empty()) return {};
 
-    std::unordered_map<int, float> scores;
+    std::unordered_map<int64_t, float> scores;
     scores.reserve(docs_.size());
 
     static constexpr int MAX_PREFIX_TERMS = 64;

@@ -41,10 +41,10 @@ public:
     int documentCount() const;
 
     /** Indexes or replaces a document. Acquires an exclusive write lock. */
-    void indexDocument(int doc_id, const std::string& title, const std::string& body);
+    void indexDocument(int64_t doc_id, const std::string& title, const std::string& body);
 
     /** Removes a document by ID. No-op if not found. Acquires an exclusive write lock. */
-    void removeDocument(int doc_id);
+    void removeDocument(int64_t doc_id);
 
     /** Removes all documents from the index. Acquires an exclusive write lock. */
     void clear();
@@ -60,7 +60,7 @@ public:
      * Each element is a tuple of (doc_id, title, body).
      * Acquires an exclusive write lock.
      */
-    void rebuildIndex(const std::vector<std::tuple<int, std::string, std::string>>& documents);
+    void rebuildIndex(const std::vector<std::tuple<int64_t, std::string, std::string>>& documents);
 
 private:
     InvertedIndex index_;

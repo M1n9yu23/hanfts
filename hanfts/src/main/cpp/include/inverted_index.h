@@ -25,8 +25,8 @@ namespace fts {
 
 /** A ranked search result returned by InvertedIndex::search(). */
 struct SearchResult {
-    int   doc_id; ///< The document identifier supplied at index time.
-    float score;  ///< TF-IDF relevance score; higher is more relevant.
+    int64_t doc_id; ///< The document identifier supplied at index time.
+    float   score;  ///< TF-IDF relevance score; higher is more relevant.
 };
 
 /**
@@ -45,10 +45,10 @@ public:
      * Indexes a document, replacing any existing document with the same @p doc_id.
      * Title tokens are weighted 3× relative to body tokens.
      */
-    void addDocument(int doc_id, const std::string& title, const std::string& body);
+    void addDocument(int64_t doc_id, const std::string& title, const std::string& body);
 
     /** Removes the document with the given @p doc_id. No-op if not found. */
-    void removeDocument(int doc_id);
+    void removeDocument(int64_t doc_id);
 
     /**
      * Searches the index for documents matching @p query.
@@ -70,8 +70,8 @@ public:
 private:
     /** One entry in a term's posting list. */
     struct Posting {
-        int doc_id;
-        int term_freq; ///< Weighted frequency (title hits count 3×).
+        int64_t doc_id;
+        int     term_freq; ///< Weighted frequency (title hits count 3×).
     };
 
     /** Per-document metadata used for TF normalization. */
@@ -82,15 +82,15 @@ private:
     // Sorted map so that lower_bound() can efficiently find prefix matches.
     std::map<std::string, std::vector<Posting>> index_;
 
-    std::unordered_map<int, DocInfo>                 docs_;
-    std::unordered_map<std::string, int>             doc_freq_;   ///< Number of docs containing each term.
-    std::unordered_map<int, std::vector<std::string>> doc_terms_; ///< Reverse map: doc → terms (for removal).
+    std::unordered_map<int64_t, DocInfo>                 docs_;
+    std::unordered_map<std::string, int>                 doc_freq_;   ///< Number of docs containing each term.
+    std::unordered_map<int64_t, std::vector<std::string>> doc_terms_; ///< Reverse map: doc → terms (for removal).
 
     /** Computes the TF-IDF score contribution of a single term occurrence. */
     float termScore(int term_freq, int total_terms, int df) const;
 
     /** Accumulates weighted token frequencies into @p term_counts. */
-    void indexTokens(int doc_id,
+    void indexTokens(int64_t doc_id,
                      const std::vector<std::string>& tokens,
                      int weight,
                      std::unordered_map<std::string, int>& term_counts);

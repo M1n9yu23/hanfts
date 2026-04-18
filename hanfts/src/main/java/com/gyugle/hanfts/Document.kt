@@ -23,7 +23,7 @@ package com.gyugle.hanfts
  * @param body  Main content of the document.
  */
 data class Document(
-  val id: Int,
+  val id: Long,
   val title: String,
   val body: String,
 )

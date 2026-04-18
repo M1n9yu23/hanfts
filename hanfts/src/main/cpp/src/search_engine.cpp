@@ -22,14 +22,14 @@ int SearchEngine::documentCount() const {
     return index_.docCount();
 }
 
-void SearchEngine::indexDocument(int doc_id,
+void SearchEngine::indexDocument(int64_t doc_id,
                                   const std::string& title,
                                   const std::string& body) {
     std::unique_lock<std::shared_mutex> lock(mutex_);
     index_.addDocument(doc_id, title, body);
 }
 
-void SearchEngine::removeDocument(int doc_id) {
+void SearchEngine::removeDocument(int64_t doc_id) {
     std::unique_lock<std::shared_mutex> lock(mutex_);
     index_.removeDocument(doc_id);
 }
@@ -45,7 +45,7 @@ std::vector<SearchResult> SearchEngine::search(const std::string& query, int lim
 }
 
 void SearchEngine::rebuildIndex(
-    const std::vector<std::tuple<int, std::string, std::string>>& documents) {
+    const std::vector<std::tuple<int64_t, std::string, std::string>>& documents) {
     std::unique_lock<std::shared_mutex> lock(mutex_);
     index_.clear();
     for (auto& [id, title, body] : documents) {
