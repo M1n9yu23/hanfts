@@ -18,11 +18,11 @@
 
 ## Overview
 
-hanfts is an Android full-text search library that supports both Korean and English. It uses a bigram tokenizer implemented in C++17 to enable partial Korean search, which is not available in SQLite FTS without extra ICU configuration.
+hanfts is an Android full-text search library that supports both Korean and English. It uses a bigram tokenizer implemented in C++17 to enable partial Korean search.
 
 ## Background
 
-SQLite FTS, which is commonly used with Room, splits text on whitespace and punctuation. This works fine for English but does not handle Korean — a query like `"산책"` against a document containing `"오늘산책했다"` returns no results because the entire word is treated as a single token.
+With Room's default setup, searching `"산책"` does not match a document containing `"오늘산책했다"`.
 
 <div align="center">
   <img src="assets/img1.png" width="260">
@@ -30,7 +30,7 @@ SQLite FTS, which is commonly used with Room, splits text on whitespace and punc
   <img src="assets/img3.png" width="260">
 </div>
 
-hanfts was built to address this by tokenizing Korean text into overlapping bigrams at the Unicode codepoint level, making partial and prefix search work without a morphological analyzer.
+hanfts provides an alternative that works out of the box, tokenizing Korean text into overlapping bigrams at the Unicode codepoint level without a morphological analyzer.
 
 ## Features
 
@@ -241,6 +241,14 @@ fts::SearchEngine       ← C++ API + std::shared_mutex concurrency
 - C++17
 
 ABI targets: `arm64-v8a`, `armeabi-v7a`, `x86_64`
+
+## References
+
+- **[Introduction to Information Retrieval](https://nlp.stanford.edu/IR-book/)** — Theoretical basis for the inverted index, TF-IDF scoring, and the smoothed IDF variant (`log((N+1)/(df+1)) + 1`).
+- **[RFC 3629 — UTF-8, a transformation format of ISO 10646](https://www.rfc-editor.org/rfc/rfc3629)** — Reference specification for the manual 1–4 byte UTF-8 decoder.
+- **[Unicode Standard — Hangul Blocks](https://www.unicode.org/charts/)** — Definition of Korean Unicode block ranges (Syllables U+AC00–U+D7A3, Jamo, Compatibility Jamo, Extended blocks).
+- **[Android NDK — JNI Tips](https://developer.android.com/training/articles/perf-jni)** — Pointer-handle pattern, `DeleteLocalRef` management, and `JNI_ABORT` flag.
+- **[cppreference — std::shared_mutex](https://en.cppreference.com/w/cpp/thread/shared_mutex)** — Readers-writer lock implementation (C++17).
 
 ## Contributing
 

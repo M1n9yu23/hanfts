@@ -22,7 +22,7 @@ hanfts는 한국어와 영어를 모두 지원하는 Android 전문 검색 라�
 
 ## 배경
 
-Room과 함께 주로 사용되는 SQLite FTS는 공백과 구두점 기준으로 텍스트를 분리합니다. 영어에는 잘 동작하지만 한국어는 처리하지 못합니다 — `"오늘산책했다"`라는 문서에서 `"산책"`을 검색하면 단어 전체가 단일 토큰으로 취급되어 결과가 반환되지 않습니다.
+Room 기본 설정에서 `"산책"`을 검색하면 `"오늘산책했다"`가 포함된 문서는 찾을 수 없습니다.
 
 <div align="center">
   <img src="assets/img1.png" width="260">
@@ -30,7 +30,7 @@ Room과 함께 주로 사용되는 SQLite FTS는 공백과 구두점 기준으�
   <img src="assets/img3.png" width="260">
 </div>
 
-hanfts는 이 문제를 해결하기 위해 만들어졌습니다. 한국어 텍스트를 유니코드 코드포인트 단위로 겹치는 바이그램으로 분리하여, 형태소 분석기 없이도 부분 검색과 프리픽스 검색이 동작합니다.
+hanfts는 별도 설정 없이 바로 동작하는 대안으로, 한국어 텍스트를 유니코드 코드포인트 단위로 겹치는 바이그램으로 분리하여 형태소 분석기 없이도 부분 검색과 프리픽스 검색이 동작합니다.
 
 ## 기능
 
@@ -241,6 +241,14 @@ fts::SearchEngine       ← C++ API + std::shared_mutex 동시성
 - C++17
 
 ABI 대상: `arm64-v8a`, `armeabi-v7a`, `x86_64`
+
+## 참고 자료
+
+- **[Introduction to Information Retrieval](https://nlp.stanford.edu/IR-book/)** — 역색인(Inverted Index) 자료구조, TF-IDF 스코어링, 스무딩 IDF 변형(`log((N+1)/(df+1)) + 1`)의 이론적 기반.
+- **[RFC 3629 — UTF-8, a transformation format of ISO 10646](https://www.rfc-editor.org/rfc/rfc3629)** — 수동 UTF-8 디코더(1~4바이트 시퀀스) 구현의 참조 명세.
+- **[Unicode Standard — Hangul Blocks](https://www.unicode.org/charts/)** — 한글 유니코드 블록 범위 정의 (음절 U+AC00–U+D7A3, 자모, 호환 자모, 확장 블록).
+- **[Android NDK — JNI Tips](https://developer.android.com/training/articles/perf-jni)** — 포인터-핸들 패턴, `DeleteLocalRef` 관리, `JNI_ABORT` 플래그 등 JNI 구현 관용구.
+- **[cppreference — std::shared_mutex](https://en.cppreference.com/w/cpp/thread/shared_mutex)** — Readers-Writer Lock 구현 (C++17).
 
 ## 기여
 
