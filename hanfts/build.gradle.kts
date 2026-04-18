@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.android.library)
+  alias(libs.plugins.vanniktech.publish)
 }
 
 android {
@@ -60,5 +61,45 @@ android {
 kotlin {
   compilerOptions {
     jvmTarget.set(JvmTarget.JVM_21)
+  }
+}
+
+mavenPublishing {
+  publishToMavenCentral()
+  signAllPublications()
+
+  coordinates(
+    groupId = "io.github.m1n9yu23",
+    artifactId = "hanfts",
+    version = "1.0.0",
+  )
+
+  pom {
+    name.set("hanfts")
+    description.set(
+      "Native Full-Text Search for Android — Korean & English, zero dependencies, pure in-memory.",
+    )
+    inceptionYear.set("2026")
+    url.set("https://github.com/M1n9yu23/hanfts")
+    licenses {
+      license {
+        name.set("Apache License, Version 2.0")
+        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+        distribution.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+      }
+    }
+    developers {
+      developer {
+        id.set("M1n9yu23")
+        name.set("MinGyu Son")
+        email.set("sonmingyu23@naver.com")
+        url.set("https://github.com/M1n9yu23")
+      }
+    }
+    scm {
+      url.set("https://github.com/M1n9yu23/hanfts")
+      connection.set("scm:git:git://github.com/M1n9yu23/hanfts.git")
+      developerConnection.set("scm:git:ssh://git@github.com/M1n9yu23/hanfts.git")
+    }
   }
 }

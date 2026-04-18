@@ -19,6 +19,7 @@ plugins {
   alias(libs.plugins.android.test) apply false
   alias(libs.plugins.kotlin.compose) apply false
   alias(libs.plugins.spotless)
+  alias(libs.plugins.vanniktech.publish) apply false
 }
 
 spotless {
