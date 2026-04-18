@@ -9,6 +9,7 @@
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg)](https://android-arsenal.com/api?level=21)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.x-7F52FF.svg)](https://kotlinlang.org)
 [![C++17](https://img.shields.io/badge/C++-17-00599C.svg)](https://isocpp.org)
+[![Android CI](https://github.com/M1n9yu23/hanfts/actions/workflows/android.yml/badge.svg)](https://github.com/M1n9yu23/hanfts/actions/workflows/android.yml)
 
 **[한국어](README-ko.md)**
 
@@ -232,6 +233,19 @@ fts::SearchEngine       ← C++ API + std::shared_mutex concurrency
 - **Bigram tokenization has trade-offs.** Single-character queries may match a large number of documents. The prefix scan is capped at 64 terms per token to keep results manageable.
 - **Mutating operations are blocking.** `rebuildIndex`, `indexDocument`, `removeDocument`, and `clear` acquire an exclusive write lock. Do not call them on the main thread.
 - **`search()` is safe to call concurrently.** Multiple threads can search at the same time without additional synchronization.
+
+## Performance
+
+Measured with the [Microbenchmark](https://developer.android.com/topic/performance/benchmarking/microbenchmark-overview) library on an **Android 16 emulator** (Pixel 6a AVD, 4-core CPU, 2 GHz). Real device results will differ.
+
+| Operation | Median |
+|---|---|
+| `search("morning")` — English, 10k docs | **673 µs** |
+| `search("산책")` — Korean, 10k docs | **594 µs** |
+| `rebuildIndex(1k docs)` | **6.95 ms** |
+| `rebuildIndex(10k docs)` | **83 ms** |
+
+> Search latency is sub-millisecond for both Korean and English against a 10,000-document index.
 
 ## Requirements
 

@@ -9,6 +9,7 @@
 [![API](https://img.shields.io/badge/API-21%2B-brightgreen.svg)](https://android-arsenal.com/api?level=21)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.x-7F52FF.svg)](https://kotlinlang.org)
 [![C++17](https://img.shields.io/badge/C++-17-00599C.svg)](https://isocpp.org)
+[![Android CI](https://github.com/M1n9yu23/hanfts/actions/workflows/android.yml/badge.svg)](https://github.com/M1n9yu23/hanfts/actions/workflows/android.yml)
 
 **[English](README.md)**
 
@@ -232,6 +233,19 @@ fts::SearchEngine       ← C++ API + std::shared_mutex 동시성
 - **바이그램 토크나이징에는 트레이드오프가 있습니다.** 한 글자 쿼리는 많은 수의 문서와 매칭될 수 있습니다. 프리픽스 스캔은 토큰당 최대 64개로 제한되어 결과를 관리 가능한 수준으로 유지합니다.
 - **변경 연산은 블로킹입니다.** `rebuildIndex`, `indexDocument`, `removeDocument`, `clear`는 독점 쓰기 잠금을 획득합니다. 메인 스레드에서 호출하지 마세요.
 - **`search()`는 동시 호출이 안전합니다.** 여러 스레드가 추가 동기화 없이 동시에 검색할 수 있습니다.
+
+## 성능
+
+[Microbenchmark](https://developer.android.com/topic/performance/benchmarking/microbenchmark-overview) 라이브러리를 사용하여 **Android 16 에뮬레이터**(Pixel 6a AVD, 4코어 CPU, 2GHz)에서 측정한 결과입니다. 실제 기기 결과와 다를 수 있습니다.
+
+| 동작 | 중앙값(Median) |
+|---|---|
+| `search("morning")` — 영어, 문서 10k개 | **673 µs** |
+| `search("산책")` — 한국어, 문서 10k개 | **594 µs** |
+| `rebuildIndex(1k 문서)` | **6.95 ms** |
+| `rebuildIndex(10k 문서)` | **83 ms** |
+
+> 10,000개 문서 색인에서 한국어·영어 모두 서브 밀리초의 검색 지연을 달성합니다.
 
 ## 요구사항
 

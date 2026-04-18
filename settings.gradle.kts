@@ -40,3 +40,4 @@ dependencyResolutionManagement {
 rootProject.name = "hanfts"
 include(":app")
 include(":hanfts")
+include(":benchmark")
