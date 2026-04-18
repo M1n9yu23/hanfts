@@ -16,9 +16,13 @@
 package com.gyugle.hanfts
 
 import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 internal class NativeSearchEngine : SearchEngine {
   private val handle = AtomicLong(nativeCreate())
+  private val lock = ReentrantReadWriteLock()
 
   init {
     check(handle.get() != 0L) { "Failed to initialise native FTS engine" }
@@ -61,15 +65,18 @@ internal class NativeSearchEngine : SearchEngine {
     }
 
   override fun close() {
-    val h = handle.getAndSet(0L)
-    if (h != 0L) nativeDestroy(h)
+    lock.write {
+      val h = handle.getAndSet(0L)
+      if (h != 0L) nativeDestroy(h)
+    }
   }
 
-  private inline fun <T> withHandle(block: (Long) -> T): T {
-    val h = handle.get()
-    check(h != 0L) { "SearchEngine is closed" }
-    return block(h)
-  }
+  private inline fun <T> withHandle(block: (Long) -> T): T =
+    lock.read {
+      val h = handle.get()
+      check(h != 0L) { "SearchEngine is closed" }
+      block(h)
+    }
 
   private external fun nativeCreate(): Long
 

@@ -172,20 +172,26 @@ Java_com_gyugle_hanfts_NativeSearchEngine_nativeRebuildIndex(
         jlongArray ids, jobjectArray titles, jobjectArray bodies) {
     auto* engine = toEngine(handle);
     if (!engine) { throwIllegalState(env, "SearchEngine is closed"); return; }
+
+    jsize len        = env->GetArrayLength(ids);
+    jsize titles_len = env->GetArrayLength(titles);
+    jsize bodies_len = env->GetArrayLength(bodies);
+
+    if (titles_len != len || bodies_len != len) {
+        throwException(env, "java/lang/IllegalArgumentException",
+                       "ids, titles, and bodies arrays must have the same length");
+        return;
+    }
+
+    jlong* id_arr = env->GetLongArrayElements(ids, nullptr);
+    if (!id_arr) return;
+
+    struct Guard {
+        JNIEnv* env; jlongArray ids; jlong* ptr;
+        ~Guard() { env->ReleaseLongArrayElements(ids, ptr, JNI_ABORT); }
+    } guard{env, ids, id_arr};
+
     try {
-        jsize len        = env->GetArrayLength(ids);
-        jsize titles_len = env->GetArrayLength(titles);
-        jsize bodies_len = env->GetArrayLength(bodies);
-
-        if (titles_len != len || bodies_len != len) {
-            throwException(env, "java/lang/IllegalArgumentException",
-                           "ids, titles, and bodies arrays must have the same length");
-            return;
-        }
-
-        jlong* id_arr = env->GetLongArrayElements(ids, nullptr);
-        if (!id_arr) return;
-
         std::vector<std::tuple<int64_t, std::string, std::string>> docs;
         docs.reserve(static_cast<size_t>(len));
 
@@ -200,7 +206,6 @@ Java_com_gyugle_hanfts_NativeSearchEngine_nativeRebuildIndex(
             env->DeleteLocalRef(body_js);
         }
 
-        env->ReleaseLongArrayElements(ids, id_arr, JNI_ABORT);
         engine->rebuildIndex(docs);
     } catch (const std::exception& e) {
         throwRuntimeException(env, e.what());

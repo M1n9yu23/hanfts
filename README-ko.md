@@ -224,7 +224,7 @@ fts::SearchEngine       ← C++ API + std::shared_mutex 동시성
     └── fts::Tokenizer      — UTF-8 → 코드포인트 → 바이그램 / 단어
 ```
 
-`NativeSearchEngine`은 `internal`입니다 — 사용자는 `SearchEngine` 인터페이스만 사용합니다. C++ 객체는 `AtomicLong`을 통한 불투명 `jlong` 핸들로 관리되며, `close()`는 동시 시나리오에서 이중 해제를 방지하기 위해 `getAndSet(0)`을 사용합니다.
+`NativeSearchEngine`은 `internal`입니다 — 사용자는 `SearchEngine` 인터페이스만 사용합니다. C++ 객체는 `AtomicLong`을 통한 불투명 `jlong` 핸들로 관리됩니다. `ReentrantReadWriteLock`을 통해 `close()`가 진행 중인 작업이 완료될 때까지 대기한 후 네이티브 엔진을 해제하여, 동시 시나리오에서 use-after-free를 방지합니다.
 
 ## 참고사항
 

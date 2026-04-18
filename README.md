@@ -224,7 +224,7 @@ fts::SearchEngine       ← C++ API + std::shared_mutex concurrency
     └── fts::Tokenizer      — UTF-8 → codepoints → bigrams / words
 ```
 
-`NativeSearchEngine` is `internal` — users interact only with the `SearchEngine` interface. The C++ object is managed as an opaque `jlong` handle via `AtomicLong`; `close()` uses `getAndSet(0)` to prevent double-free in concurrent scenarios.
+`NativeSearchEngine` is `internal` — users interact only with the `SearchEngine` interface. The C++ object is managed as an opaque `jlong` handle via `AtomicLong`. A `ReentrantReadWriteLock` ensures that `close()` waits for any in-progress operation to finish before destroying the native engine, preventing use-after-free in concurrent scenarios.
 
 ## Notes
 
