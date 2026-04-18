@@ -46,7 +46,7 @@ spotless {
   }
   format("xml") {
     target("**/*.xml")
-    targetExclude("**/build/**/*.xml", "**/.cxx/**/*.xml", "spotless/**")
+    targetExclude("**/build/**/*.xml", "**/.cxx/**/*.xml", "spotless/**", "**/.idea/**/*.xml")
     licenseHeaderFile(rootProject.file("spotless/copyright.xml"), "(<[^!?])")
     trimTrailingWhitespace()
     endWithNewline()
