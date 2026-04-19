@@ -270,6 +270,10 @@ All contributions are welcome — bug fixes, performance improvements, new langu
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## Support
+
+If hanfts has been useful to you, consider giving it a ⭐ — it means a lot!
+
 ## License
 
 ```
