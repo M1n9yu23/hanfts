@@ -270,6 +270,10 @@ ABI 대상: `arm64-v8a`, `armeabi-v7a`, `x86_64`
 
 자세한 내용은 [CONTRIBUTING.md](CONTRIBUTING.md)를 참고하세요.
 
+## 지원
+
+hanfts가 도움이 되었다면 ⭐ 눌러주세요 — 큰 힘이 됩니다!
+
 ## 라이선스
 
 ```
