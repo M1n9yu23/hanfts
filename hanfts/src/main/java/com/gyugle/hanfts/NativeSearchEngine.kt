@@ -24,55 +24,108 @@ internal class NativeSearchEngine : SearchEngine {
   private val handle = AtomicLong(nativeCreate())
   private val lock = ReentrantReadWriteLock()
 
+  // String (public) ↔ Long (native) bidirectional mapping. Both maps and the counter
+  // are guarded by [lock]: read for queries, write for mutations.
+  private val stringToInternalId = HashMap<String, Long>()
+  private val internalIdToString = HashMap<Long, String>()
+  private val idCounter = AtomicLong(1L)
+
   init {
     check(handle.get() != 0L) { "Failed to initialise native FTS engine" }
   }
 
   override val documentCount: Int
-    get() = withHandle { nativeDocumentCount(it) }
+    get() = withRead { nativeDocumentCount(it) }
 
-  override fun indexDocument(id: Long, title: String, body: String) =
-    withHandle { nativeIndexDocument(it, id, title, body) }
+  override fun indexDocument(id: String, title: String, body: String) =
+    withWrite { h ->
+      val existing = stringToInternalId[id]
+      val internalId = existing ?: idCounter.getAndIncrement()
+      nativeIndexDocument(h, internalId, title, body)
+      if (existing == null) {
+        stringToInternalId[id] = internalId
+        internalIdToString[internalId] = id
+      }
+    }
 
-  override fun removeDocument(id: Long) =
-    withHandle { nativeRemoveDocument(it, id) }
+  override fun removeDocument(id: String) =
+    withWrite { h ->
+      val internalId = stringToInternalId[id] ?: return@withWrite
+      nativeRemoveDocument(h, internalId)
+      stringToInternalId.remove(id)
+      internalIdToString.remove(internalId)
+    }
 
   override fun clear() =
-    withHandle { nativeClear(it) }
+    withWrite { h ->
+      nativeClear(h)
+      stringToInternalId.clear()
+      internalIdToString.clear()
+    }
 
   override fun search(query: String, limit: Int): List<SearchResult> {
     require(limit > 0) { "limit must be positive, was $limit" }
     if (query.isBlank()) return emptyList()
-    return withHandle { h ->
+    return withRead { h ->
       val packed = nativeSearch(h, query, limit)
-      List(packed.size / 2) { i ->
-        SearchResult(
-          id = packed[i * 2],
-          score = Float.fromBits(packed[i * 2 + 1].toInt()),
-        )
+      val out = ArrayList<SearchResult>(packed.size / 2)
+      var i = 0
+      while (i < packed.size) {
+        val stringId = internalIdToString[packed[i]]
+        if (stringId != null) {
+          out.add(SearchResult(stringId, Float.fromBits(packed[i + 1].toInt())))
+        }
+        i += 2
       }
+      out
     }
   }
 
   override fun rebuildIndex(documents: List<Document>) =
-    withHandle { h ->
+    withWrite { h ->
+      val newForward = HashMap<String, Long>(documents.size)
+      val newReverse = HashMap<Long, String>(documents.size)
+      val ids =
+        LongArray(documents.size) { i ->
+          val docId = documents[i].id
+          newForward.getOrPut(docId) {
+            val newId = idCounter.getAndIncrement()
+            newReverse[newId] = docId
+            newId
+          }
+        }
       nativeRebuildIndex(
         h,
-        LongArray(documents.size) { documents[it].id },
+        ids,
         Array(documents.size) { documents[it].title },
         Array(documents.size) { documents[it].body },
       )
+      stringToInternalId.clear()
+      stringToInternalId.putAll(newForward)
+      internalIdToString.clear()
+      internalIdToString.putAll(newReverse)
     }
 
   override fun close() {
     lock.write {
       val h = handle.getAndSet(0L)
-      if (h != 0L) nativeDestroy(h)
+      if (h != 0L) {
+        nativeDestroy(h)
+        stringToInternalId.clear()
+        internalIdToString.clear()
+      }
     }
   }
 
-  private inline fun <T> withHandle(block: (Long) -> T): T =
+  private inline fun <T> withRead(block: (Long) -> T): T =
     lock.read {
+      val h = handle.get()
+      check(h != 0L) { "SearchEngine is closed" }
+      block(h)
+    }
+
+  private inline fun <T> withWrite(block: (Long) -> T): T =
+    lock.write {
       val h = handle.get()
       check(h != 0L) { "SearchEngine is closed" }
       block(h)

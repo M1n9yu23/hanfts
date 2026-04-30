@@ -68,7 +68,7 @@ kotlin {
 }
 
 dependencies {
-  implementation(libs.hanfts)
+  implementation(project(":hanfts"))
   implementation(libs.androidx.lifecycle.viewmodel.compose)
   implementation(libs.androidx.compose.material.icons.core)
   implementation(libs.kotlinx.coroutines.android)

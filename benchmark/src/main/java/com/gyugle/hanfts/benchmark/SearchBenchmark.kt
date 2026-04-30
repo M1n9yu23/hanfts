@@ -72,7 +72,7 @@ class SearchBenchmark {
     private val docs1k =
       List(1_000) { i ->
         Document(
-          id = i.toLong(),
+          id = i.toString(),
           title = "오늘의 산책 $i",
           body = "날씨가 맑아서 공원을 걸었다 morning walk $i",
         )
@@ -81,7 +81,7 @@ class SearchBenchmark {
     private val docs10k =
       List(10_000) { i ->
         Document(
-          id = i.toLong(),
+          id = i.toString(),
           title = "오늘의 산책 $i",
           body = "날씨가 맑아서 공원을 걸었다 morning walk $i",
         )

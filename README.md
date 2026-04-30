@@ -76,20 +76,20 @@ SearchEngine().use { engine ->
 ```kotlin
 engine.rebuildIndex(
     listOf(
-        Document(id = 1L, title = "오늘의 산책", body = "날씨가 맑아서 공원을 걸었다."),
-        Document(id = 2L, title = "Morning Walk", body = "The park was quiet and peaceful."),
+        Document(id = "walk-001", title = "오늘의 산책", body = "날씨가 맑아서 공원을 걸었다."),
+        Document(id = "walk-002", title = "Morning Walk", body = "The park was quiet and peaceful."),
     )
 )
 
-engine.indexDocument(id = 3L, title = "제목", body = "본문 내용")
-engine.indexDocument(Document(id = 4L, title = "Title", body = "Body text"))
+engine.indexDocument(id = "post-789", title = "제목", body = "본문 내용")
+engine.indexDocument(Document(id = UUID.randomUUID().toString(), title = "Title", body = "Body text"))
 ```
 
 ### Search
 
 ```kotlin
 val results = engine.search("산책")
-// → [SearchResult(id=1, score=1.82f)]
+// → [SearchResult(id="walk-001", score=1.82f)]
 
 val results = engine.search("산책", limit = 5)
 ```
@@ -97,9 +97,9 @@ val results = engine.search("산책", limit = 5)
 ### Update and remove
 
 ```kotlin
-engine.indexDocument(id = 1L, title = "updated title", body = "updated body")
+engine.indexDocument(id = "walk-001", title = "updated title", body = "updated body")
 
-engine.removeDocument(id = 1L)
+engine.removeDocument(id = "walk-001")
 
 engine.clear()
 ```
@@ -144,7 +144,7 @@ val engine = SearchEngine()
 | `documentCount: Int` | Number of documents currently in the index. |
 | `indexDocument(id, title, body)` | Adds or replaces a document. Replaces if `id` already exists. |
 | `indexDocument(document: Document)` | Convenience overload accepting a `Document`. |
-| `removeDocument(id: Long)` | Removes a document by ID. No-op if not found. |
+| `removeDocument(id: String)` | Removes a document by ID. No-op if not found. |
 | `clear()` | Removes all documents from the index. |
 | `search(query, limit = 20)` | Returns results ranked by TF-IDF score, descending. Blank query returns empty list. |
 | `rebuildIndex(documents: List<Document>)` | Clears and rebuilds the entire index atomically. |
@@ -156,17 +156,19 @@ val engine = SearchEngine()
 
 ```kotlin
 data class Document(
-    val id: Long,
+    val id: String,
     val title: String,
     val body: String,
 )
 ```
 
+> **Document IDs are arbitrary strings.** Use whatever uniquely identifies your records — Room primary keys (`id.toString()`), Firebase document IDs, REST slugs, `UUID.randomUUID().toString()`, etc. IDs are matched by `String.equals`/`hashCode`, so Unicode-distinct strings are different IDs.
+
 ### `SearchResult`
 
 ```kotlin
 data class SearchResult(
-    val id: Long,
+    val id: String,
     val score: Float,
 )
 ```
