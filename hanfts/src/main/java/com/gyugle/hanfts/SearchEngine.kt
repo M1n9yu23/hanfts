@@ -18,7 +18,7 @@ package com.gyugle.hanfts
 import java.io.Closeable
 
 /**
- * A full-text search engine that indexes and queries documents by integer ID.
+ * A full-text search engine that indexes and queries documents by string ID.
  *
  * Supports both Korean (bigram tokenization) and ASCII (word-level) text.
  * Title text is weighted 3× higher than body text in relevance scoring.
@@ -47,7 +47,7 @@ interface SearchEngine : Closeable {
    *
    * @throws IllegalStateException if this engine has been closed.
    */
-  fun indexDocument(id: Long, title: String, body: String)
+  fun indexDocument(id: String, title: String, body: String)
 
   /**
    * Adds or replaces [document] in the index.
@@ -65,7 +65,7 @@ interface SearchEngine : Closeable {
    *
    * @throws IllegalStateException if this engine has been closed.
    */
-  fun removeDocument(id: Long)
+  fun removeDocument(id: String)
 
   /**
    * Removes all documents from the index.

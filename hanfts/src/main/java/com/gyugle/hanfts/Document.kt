@@ -18,12 +18,15 @@ package com.gyugle.hanfts
 /**
  * A document to be indexed by [SearchEngine].
  *
- * @param id    Unique integer identifier. Indexing a document with an existing [id] replaces it.
+ * @param id    Unique string identifier (e.g. UUID, slug, primary key). Indexing a document
+ *              with an existing [id] replaces it. IDs are compared by [String.equals]/[String.hashCode],
+ *              so Unicode-distinct strings (e.g. precomposed `"é"` vs decomposed `"é"`) are
+ *              treated as different IDs — normalize on the caller side if needed.
  * @param title Short descriptive text, weighted 3× higher than [body] in relevance scoring.
  * @param body  Main content of the document.
  */
 data class Document(
-  val id: Long,
+  val id: String,
   val title: String,
   val body: String,
 )

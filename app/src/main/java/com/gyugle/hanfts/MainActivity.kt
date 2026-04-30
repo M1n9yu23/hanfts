@@ -187,16 +187,22 @@ private fun SearchHitCard(hit: SearchHit) {
 
 private val previewHits =
   listOf(
-    SearchHit(Document(1, "벚꽃 산책", "벚꽃이 만개한 길을 걸었다. 꽃잎이 바람에 흩날려 마치 눈처럼 떨어졌다."), score = 0f),
+    SearchHit(
+      Document("walk-cherry-blossom", "벚꽃 산책", "벚꽃이 만개한 길을 걸었다. 꽃잎이 바람에 흩날려 마치 눈처럼 떨어졌다."),
+      score = 0f,
+    ),
     SearchHit(
       Document(
-        2,
+        "walk-morning",
         "Morning Walk",
         "Woke up early and took a quiet walk through the park. The fresh air was refreshing.",
       ),
       score = 0f,
     ),
-    SearchHit(Document(3, "한강 산책", "한강 공원을 따라 한 시간쯤 걸었다. 강바람이 시원하고 경치가 좋았다."), score = 0f),
+    SearchHit(
+      Document("walk-hangang", "한강 산책", "한강 공원을 따라 한 시간쯤 걸었다. 강바람이 시원하고 경치가 좋았다."),
+      score = 0f,
+    ),
   )
 
 @Preview(showSystemUi = true, name = "SearchScreen — browse")
@@ -221,11 +227,11 @@ private fun SearchScreenResultsPreview() {
       hits =
         listOf(
           SearchHit(
-            Document(1, "벚꽃 산책", "벚꽃이 만개한 길을 걸었다. 꽃잎이 바람에 흩날려 마치 눈처럼 떨어졌다."),
+            Document("walk-cherry-blossom", "벚꽃 산책", "벚꽃이 만개한 길을 걸었다. 꽃잎이 바람에 흩날려 마치 눈처럼 떨어졌다."),
             score = 1.82f,
           ),
           SearchHit(
-            Document(2, "한강 산책", "한강 공원을 따라 한 시간쯤 걸었다. 강바람이 시원하고 경치가 좋았다."),
+            Document("walk-hangang", "한강 산책", "한강 공원을 따라 한 시간쯤 걸었다. 강바람이 시원하고 경치가 좋았다."),
             score = 1.21f,
           ),
         ),

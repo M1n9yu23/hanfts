@@ -76,20 +76,20 @@ SearchEngine().use { engine ->
 ```kotlin
 engine.rebuildIndex(
     listOf(
-        Document(id = 1L, title = "오늘의 산책", body = "날씨가 맑아서 공원을 걸었다."),
-        Document(id = 2L, title = "Morning Walk", body = "The park was quiet and peaceful."),
+        Document(id = "walk-001", title = "오늘의 산책", body = "날씨가 맑아서 공원을 걸었다."),
+        Document(id = "walk-002", title = "Morning Walk", body = "The park was quiet and peaceful."),
     )
 )
 
-engine.indexDocument(id = 3L, title = "제목", body = "본문 내용")
-engine.indexDocument(Document(id = 4L, title = "Title", body = "Body text"))
+engine.indexDocument(id = "post-789", title = "제목", body = "본문 내용")
+engine.indexDocument(Document(id = UUID.randomUUID().toString(), title = "Title", body = "Body text"))
 ```
 
 ### 검색
 
 ```kotlin
 val results = engine.search("산책")
-// → [SearchResult(id=1, score=1.82f)]
+// → [SearchResult(id="walk-001", score=1.82f)]
 
 val results = engine.search("산책", limit = 5)
 ```
@@ -97,9 +97,9 @@ val results = engine.search("산책", limit = 5)
 ### 수정 및 삭제
 
 ```kotlin
-engine.indexDocument(id = 1L, title = "수정된 제목", body = "수정된 본문")
+engine.indexDocument(id = "walk-001", title = "수정된 제목", body = "수정된 본문")
 
-engine.removeDocument(id = 1L)
+engine.removeDocument(id = "walk-001")
 
 engine.clear()
 ```
@@ -144,7 +144,7 @@ val engine = SearchEngine()
 | `documentCount: Int` | 현재 색인에 있는 문서 수. |
 | `indexDocument(id, title, body)` | 문서를 추가하거나 교체합니다. `id`가 이미 있으면 교체. |
 | `indexDocument(document: Document)` | `Document`를 받는 편의 오버로드. |
-| `removeDocument(id: Long)` | ID로 문서를 제거합니다. 없으면 무시. |
+| `removeDocument(id: String)` | ID로 문서를 제거합니다. 없으면 무시. |
 | `clear()` | 색인의 모든 문서를 제거합니다. |
 | `search(query, limit = 20)` | TF-IDF 점수 내림차순으로 결과를 반환합니다. 빈 쿼리는 빈 리스트 반환. |
 | `rebuildIndex(documents: List<Document>)` | 전체 색인을 원자적으로 초기화하고 재구성합니다. |
@@ -156,17 +156,19 @@ val engine = SearchEngine()
 
 ```kotlin
 data class Document(
-    val id: Long,
+    val id: String,
     val title: String,
     val body: String,
 )
 ```
 
+> **문서 ID는 임의의 문자열입니다.** 레코드를 고유하게 식별할 수 있는 어떤 형태든 사용하세요 — Room 기본 키(`id.toString()`), Firebase 문서 ID, REST slug, `UUID.randomUUID().toString()` 등. ID는 `String.equals`/`hashCode`로 비교되므로 Unicode 정규화 형태가 다른 문자열은 다른 ID로 취급됩니다.
+
 ### `SearchResult`
 
 ```kotlin
 data class SearchResult(
-    val id: Long,
+    val id: String,
     val score: Float,
 )
 ```
